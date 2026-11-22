@@ -1,0 +1,6 @@
+{
+  "name": "Creep – Key 1 player",
+  "description": "Trình phát đệm piano & pad cho bài Creep (Key 1 player) sử dụng Web Audio API.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
