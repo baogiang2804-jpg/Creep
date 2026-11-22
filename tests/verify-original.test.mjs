@@ -44,4 +44,8 @@ test('GitHub repository files and build config exist and are valid', () => {
   const meta = JSON.parse(fs.readFileSync(path.join(root, 'metadata.json'), 'utf8'));
   assert.equal(meta.name, 'Creep – Key 1 player');
   assert.ok(meta.description.length > 0);
+
+  const workflow = fs.readFileSync(path.join(root, '.github/workflows/deploy.yml'), 'utf8');
+  assert.equal(/cache:\s*['"]?npm['"]?/.test(workflow), false, 'Should not require npm lockfile cache');
+  assert.match(workflow, /npm install/);
 });
