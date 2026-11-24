@@ -52,9 +52,21 @@ input[type=range]{accent-color:var(--fill-accent)}
 .b.on{background:var(--fill-accent)}
 .tg[aria-pressed="true"]{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
 </style>
+<style>
+.site-nav{display:flex;gap:6px;margin-bottom:14px;padding-bottom:10px;border-bottom:.5px solid var(--border,rgba(0,0,0,.1))}
+.site-nav a{flex:1 1 0;min-width:0;text-align:center;text-decoration:none;font-size:13px;font-weight:500;color:var(--text-secondary);background:var(--bg-neutral);border:.5px solid transparent;border-radius:var(--radius);padding:7px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.site-nav a:hover{color:var(--text-primary);border-color:var(--border-strong)}
+.site-nav a[aria-current="page"]{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.site-nav a:focus-visible{outline:2px solid var(--fill-accent);outline-offset:2px}
+</style>
 </head>
 <body>
 <main>
+<nav class="site-nav" aria-label="Chọn trang">
+  <a href="./index.html" aria-current="page">Tổng hợp</a>
+  <a href="./tay-trai.html">Tay trái</a>
+  <a href="./tay-phai.html">Tay phải</a>
+</nav>
 <h1 class="sr-only">Trình phát đệm Creep cho Key 1</h1>
 <div class="row" id="chips">
   <button class="chip on" data-s="verse">Verse</button>

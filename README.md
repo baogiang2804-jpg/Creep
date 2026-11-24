@@ -58,8 +58,10 @@ Repository đã kèm sẵn workflow tại `.github/workflows/deploy.yml`:
 
 ## Cấu trúc chính
 
-- `index.html`: File chạy chính chứa nguyên bản code HTML/CSS/JS của **Creep – Key 1 player**.
-- `public/assets/aistudio/creep_key1_player_38006af6.html`: Bản gốc tệp HTML đính kèm được giữ nguyên vẹn.
+- `index.html`: Trang **Tổng hợp** — giữ nguyên bản code HTML/CSS/JS của **Creep – Key 1 player**.
+- `tay-trai.html`: Trang **Tay trái (band-safe)** — giữ nguyên bản code từ tệp tay trái.
+- `tay-phai.html`: Trang **Tay phải** — giữ nguyên bản code từ tệp tay phải.
+- `public/assets/aistudio/`: Thư mục lưu nguyên vẹn 3 tệp HTML gốc đính kèm.
 - `.github/workflows/deploy.yml`: Cấu hình CI/CD tự động deploy GitHub Pages.
-- `vite.config.ts`: Cấu hình Vite với `base: './'` để tương thích đường dẫn con của GitHub Pages.
+- `vite.config.ts`: Cấu hình Vite multi-page (`index.html`, `tay-trai.html`, `tay-phai.html`) với `base: './'` để tương thích đường dẫn con của GitHub Pages.
 - `LICENSE`: Giấy phép MIT.

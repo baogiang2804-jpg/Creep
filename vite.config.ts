@@ -7,6 +7,15 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     base: './',
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          tayTrai: path.resolve(__dirname, 'tay-trai.html'),
+          tayPhai: path.resolve(__dirname, 'tay-phai.html'),
+        },
+      },
+    },
     plugins: [
       react(),
       tailwindcss(),

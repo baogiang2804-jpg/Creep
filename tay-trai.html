@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creep – Key 1 · Tay trái (band-safe)</title>
+<meta name="description" content="Trình phát đệm tay trái (band-safe) cho bài Creep – Key 1 player sử dụng Web Audio API." />
+<meta property="og:title" content="Creep – Key 1 · Tay trái (band-safe)" />
+<meta property="og:description" content="Trình phát đệm tay trái (band-safe) cho bài Creep – Key 1 player sử dụng Web Audio API." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<style>
+:root{
+  --bg:#fdfcfc;--surface-2:#ffffff;--bg-neutral:#f2f0f0;
+  --text-primary:#1a1a1a;--text-secondary:#5f5e5a;--text-muted:#888780;
+  --border-strong:rgba(0,0,0,.25);
+  --bg-accent:#dbeafe;--text-accent:#1e4fa0;--border-accent:#85b7eb;--fill-accent:#378add;
+  --radius:8px;color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#191919;--surface-2:#1f1f1f;--bg-neutral:#2a2a2a;
+    --text-primary:#ececec;--text-secondary:#a3a3a3;--text-muted:#7d7d7d;
+    --border-strong:rgba(255,255,255,.3);
+    --bg-accent:#1c3556;--text-accent:#9fc6f5;--border-accent:#378add;--fill-accent:#5aa3ec;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:480px;margin:0 auto}
+h1{font-size:18px;font-weight:500;margin:0 0 12px}
+button{font:inherit;color:var(--text-primary);background:transparent;border:.5px solid var(--border-strong);border-radius:var(--radius);padding:8px 12px;cursor:pointer}
+button:hover{background:var(--bg-neutral)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--fill-accent);outline-offset:2px}
+input[type=range]{accent-color:var(--fill-accent)}
+.row{display:flex;gap:8px;align-items:center}
+.chip{flex:1 1 0;min-width:0;padding:8px 4px;font-size:14px;min-height:40px}
+.chip.on{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.bars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0 8px}
+.cell{background:var(--bg-neutral);border-radius:var(--radius);padding:10px 2px 8px;text-align:center;border:.5px solid transparent}
+.cell.on{background:var(--bg-accent);border-color:var(--border-accent)}
+.cell b{display:block;font-size:20px;font-weight:500;line-height:1.3}
+.cell span{display:block;font-size:11px;color:var(--text-secondary);min-height:16px}
+.dots{display:flex;gap:4px;justify-content:center;margin-top:4px}
+.d{width:6px;height:6px;border-radius:50%;background:var(--border-strong)}
+.d.on{background:var(--fill-accent)}
+.kb{position:relative;height:84px;margin:12px 0;user-select:none;touch-action:manipulation}
+.w{position:absolute;top:0;bottom:0;background:var(--surface-2);border:.5px solid var(--border-strong);border-radius:0 0 4px 4px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:11px;color:var(--text-muted)}
+.b{position:absolute;top:0;height:52px;z-index:2;background:var(--text-primary);border-radius:0 0 3px 3px}
+.w.on{background:var(--bg-accent)}
+.b.on{background:var(--fill-accent)}
+.tg[aria-pressed="true"]{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+</style>
+<style>
+.site-nav{display:flex;gap:6px;margin-bottom:14px;padding-bottom:10px;border-bottom:.5px solid rgba(0,0,0,.1)}
+@media (prefers-color-scheme:dark){.site-nav{border-bottom-color:rgba(255,255,255,.12)}}
+.site-nav a{flex:1 1 0;min-width:0;text-align:center;text-decoration:none;font-size:13px;font-weight:500;color:var(--text-secondary);background:var(--bg-neutral);border:.5px solid transparent;border-radius:var(--radius);padding:7px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.site-nav a:hover{color:var(--text-primary);border-color:var(--border-strong)}
+.site-nav a[aria-current="page"]{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.site-nav a:focus-visible{outline:2px solid var(--fill-accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+<nav class="site-nav" aria-label="Chọn trang">
+  <a href="./index.html">Tổng hợp</a>
+  <a href="./tay-trai.html" aria-current="page">Tay trái</a>
+  <a href="./tay-phai.html">Tay phải</a>
+</nav>
+<h1>Creep – Key 1 · Tay trái (band-safe)</h1>
+<div class="row" id="chips">
+  <button class="chip on" data-s="verse">Verse</button>
+  <button class="chip" data-s="chorus">Chorus</button>
+  <button class="chip" data-s="bridge">Bridge</button>
+  <button class="chip" data-s="outro">Outro</button>
+</div>
+<div class="bars" id="bars"></div>
+<p id="desc" style="font-size:13px;color:var(--text-secondary);margin:0"></p>
+<div class="kb" id="kb"></div>
+<div class="row" style="margin-bottom:12px">
+  <button id="play" style="flex:1.2;min-height:44px;font-weight:500"><span id="pi" aria-hidden="true">▶</span> <span id="pl">Phát</span></button>
+  <button id="col" class="tg" aria-pressed="false" style="flex:1;min-height:44px">Màu sắc: tắt</button>
+  <button id="met" class="tg" aria-pressed="true" style="flex:1;min-height:44px">Metronome: bật</button>
+</div>
+<div class="row">
+  <label for="tp" style="font-size:14px;color:var(--text-secondary)">Tempo</label>
+  <input type="range" id="tp" min="65" max="115" step="1" value="92" style="flex:1">
+  <span id="tv" style="font-size:14px;font-weight:500;min-width:62px;text-align:right">92 BPM</span>
+</div>
+</main>
+<script>
+const HAND='L',LO=50,HI=72,PAN=-.3,LP=2200,FEND=700,PF0=500,PF1=1100,WET=.22,GAIN=1.25,PADG=.045,CDUR=1.6,XDUR=1.6,PADSHIFT=0;
+const CH={G:['D3','G3'],B:['F#3','B3'],C:['G3','C4'],Cm:['G3','C4']};
+const COL={G:'G4',B:'B4',C:'C5',Cm:'C5'};
+const FILL={7:'D3'};
+const SEC={
+  verse:{d:'Tay trái, Verse (band-safe): chỉ một nhịp gốc kèm quãng 5 ở phách 1 và một nốt nhẹ ở phách 3. Không xuống dưới D3 để nhường bass.',pad:0,g:.55,
+    pat:[[0,'c',.5],[4,0,.3]],
+    patC:[[0,'c',.5],[4,0,.3]]},
+  chorus:{d:'Tay trái, Chorus (band-safe): chỉ đánh phách 1 và 3, kèm pad trầm. Nhịp dập nhường cho guitar và trống.',pad:.4,g:.8,
+    pat:[[0,'c',.8],[4,'c',.6]],
+    patC:[[0,'c',.8],[4,'c',.6]]},
+  bridge:{d:'Tay trái, Bridge: chắc hơn Chorus một chút, thêm nốt quãng 5 giữa các phách. Màu sắc: nốt gốc quãng tám chen vào chỗ đảo phách.',pad:.6,g:.9,
+    pat:[[0,'c',.85],[2,0,.4],[4,'c',.7],[6,0,.4]],
+    patC:[[0,'c',.85],[2,0,.4],[3,'x',.35],[4,'c',.7],[6,'x',.4]]},
+  outro:{d:'Tay trái, Outro: thưa dần và nhỏ dần qua từng ô nhịp. Màu sắc: một nốt quãng tám rơi nhẹ ở cuối ô.',pad:0,g:1,fade:[1,.7,.5,.3],
+    pat:[[0,'c',.6],[4,0,.35]],
+    patC:[[0,'c',.6],[4,0,.35],[6,'x',.25]]}
+};
+
+const NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const midi=n=>{const r=n.match(/^([A-G]#?)(\d)$/);return(+r[2]+1)*12+NAMES.indexOf(r[1])};
+const hz=x=>440*Math.pow(2,(x-69)/12);
+const ORD=['G','B','C','Cm'];
+let A,bus,sec='verse',tempo=92,met=true,col=false,playing=false,step=0,bar=0,nxt=0,timer=null,ft=null;
+function ctx(){
+  if(!A){
+    A=new(window.AudioContext||window.webkitAudioContext)();
+    const cp=A.createDynamicsCompressor();cp.connect(A.destination);
+    bus=A.createGain();bus.gain.value=.6;bus.connect(cp);
+    const cv=A.createConvolver(),L=Math.floor(A.sampleRate*1.8),bf=A.createBuffer(2,L,A.sampleRate);
+    for(let c=0;c<2;c++){const d=bf.getChannelData(c);for(let i=0;i<L;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/L,2.5)}
+    cv.buffer=bf;const w=A.createGain();w.gain.value=WET;bus.connect(cv);cv.connect(w);w.connect(cp);
+  }
+  if(A.state==='suspended')A.resume();
+  return A;
+}
+function pn(x,t,dur,v){
+  const o=A.createOscillator(),o2=A.createOscillator(),h=A.createGain(),g=A.createGain(),fl=A.createBiquadFilter(),pa=A.createStereoPanner();
+  o.type='triangle';o2.type='sine';o.frequency.value=hz(x);o2.frequency.value=hz(x)*2;h.gain.value=.4;pa.pan.value=PAN;
+  fl.type='lowpass';fl.frequency.setValueAtTime(LP,t);fl.frequency.exponentialRampToValueAtTime(FEND,t+dur);
+  const p=.17*GAIN*v;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+.01);
+  g.gain.exponentialRampToValueAtTime(p*.35,t+.25);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(fl);o2.connect(h);h.connect(fl);fl.connect(g);g.connect(pa);pa.connect(bus);
+  o.start(t);o2.start(t);o.stop(t+dur+.05);o2.stop(t+dur+.05);
+}
+function pd(x,t,dur,v){
+  [-6,6].forEach(c=>{
+    const o=A.createOscillator(),g=A.createGain(),fl=A.createBiquadFilter(),p=PADG*v;
+    o.type='sawtooth';o.frequency.value=hz(x);o.detune.value=c;fl.type='lowpass';
+    fl.frequency.setValueAtTime(PF0,t);fl.frequency.linearRampToValueAtTime(PF1,t+dur*.6);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+.4);g.gain.setValueAtTime(p,t+dur-.1);g.gain.linearRampToValueAtTime(0,t+dur+.5);
+    o.connect(fl);fl.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+.6);
+  });
+}
+function click(t,a){
+  const o=A.createOscillator(),g=A.createGain();
+  o.frequency.value=a?1200:800;g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.0001,t+.04);
+  o.connect(g);g.connect(A.destination);o.start(t);o.stop(t+.05);
+}
+function hit(t,ns,cn,k,v,spb){
+  if(k==='c'){ns.forEach((x,i)=>pn(x,t+i*.012,spb*CDUR,v));return ns}
+  if(k==='h'){const h=[ns[ns.length-2],ns[ns.length-1]];h.forEach(x=>pn(x,t,spb*2,v));return h}
+  if(k==='x'){pn(cn,t,spb*XDUR,v);return[cn]}
+  pn(ns[k],t,spb*2.2,v);return[ns[k]];
+}
+function sched(t){
+  const s=SEC[sec],ch=ORD[bar],ns=CH[ch].map(midi),cn=midi(COL[ch]),spb=60/tempo,fade=s.fade?s.fade[bar]:1;
+  let played=[];
+  const hv=()=>.92+Math.random()*.16,tj=()=>Math.random()*.008;
+  if(step%2===0&&met)click(t,step===0);
+  if(col&&sec==='verse'&&bar===3&&FILL[step]){
+    const f=midi(FILL[step]);pn(f,t,spb*1.6,.55*s.g*hv());played=[f];
+  }
+  if(!played.length)(col?s.patC:s.pat).forEach(([st,k,v])=>{if(st===step)played=played.concat(hit(t+tj(),ns,cn,k,v*s.g*fade*hv(),spb))});
+  if(step===0&&s.pad)ns.forEach(x=>pd(x+PADSHIFT,t,spb*4,s.pad*fade));
+  const b=bar,st=step;
+  setTimeout(()=>ui(b,st,played),Math.max(0,(t-A.currentTime)*1000));
+}
+function loop(){
+  while(nxt<A.currentTime+.12){
+    sched(nxt);nxt+=30/tempo;step++;
+    if(step>7){step=0;bar=(bar+1)%4}
+  }
+}
+const cells=[],keys={};
+const barsEl=document.getElementById('bars');
+ORD.forEach(c=>{
+  const e=document.createElement('div');e.className='cell';
+  e.innerHTML='<b>'+c+'</b><span></span><div class="dots"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i></div>';
+  barsEl.appendChild(e);cells.push(e);
+});
+function labels(){
+  cells.forEach((e,i)=>{
+    const c=ORD[i];
+    e.querySelector('span').textContent=HAND==='L'?CH[c].map(n=>n.replace(/\d/,'')).join(' – '):(col?'+'+COL[c].replace(/\d/,''):'');
+  });
+}
+const bk=[1,3,6,8,10],kb=document.getElementById('kb');
+let W=0,wi=0;for(let x=LO;x<=HI;x++)if(!bk.includes(x%12))W++;
+for(let x=LO;x<=HI;x++){
+  const bl=bk.includes(x%12),e=document.createElement('div');
+  if(!bl){e.className='w';e.style.left=(wi*100/W)+'%';e.style.width=(100/W)+'%';if(x%12===0)e.textContent='C'+(x/12-1);wi++}
+  else{e.className='b';e.style.left=(wi*100/W-30/W)+'%';e.style.width=(60/W)+'%'}
+  e.addEventListener('pointerdown',ev=>{ev.preventDefault();ctx();pn(x,A.currentTime,1.2,1);flash([x])});
+  kb.appendChild(e);keys[x]=e;
+}
+function clearKeys(){Object.values(keys).forEach(e=>e.classList.remove('on'))}
+function flash(ns){clearKeys();ns.forEach(x=>keys[x]&&keys[x].classList.add('on'));clearTimeout(ft);ft=setTimeout(clearKeys,260)}
+function ui(b,st,played){
+  if(!playing)return;
+  cells.forEach((e,i)=>{
+    e.classList.toggle('on',i===b);
+    e.querySelectorAll('.d').forEach((d,j)=>d.classList.toggle('on',i===b&&j===Math.floor(st/2)));
+  });
+  if(played.length)flash(played);
+}
+function reset(){
+  cells.forEach(e=>{e.classList.remove('on');e.querySelectorAll('.d').forEach(d=>d.classList.remove('on'))});
+  clearKeys();
+}
+function label(){
+  document.getElementById('pl').textContent=playing?'Dừng':'Phát';
+  document.getElementById('pi').textContent=playing?'■':'▶';
+}
+document.getElementById('play').onclick=()=>{
+  ctx();
+  if(!playing){playing=true;step=0;bar=0;nxt=A.currentTime+.08;loop();timer=setInterval(loop,25)}
+  else{playing=false;clearInterval(timer);reset()}
+  label();
+};
+document.querySelectorAll('#chips .chip').forEach(b=>b.onclick=()=>{
+  sec=b.dataset.s;
+  document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',x===b));
+  document.getElementById('desc').textContent=SEC[sec].d;
+});
+const mb=document.getElementById('met');
+mb.onclick=()=>{met=!met;mb.setAttribute('aria-pressed',met);mb.textContent='Metronome: '+(met?'bật':'tắt')};
+const cb=document.getElementById('col');
+cb.onclick=()=>{col=!col;cb.setAttribute('aria-pressed',col);cb.textContent='Màu sắc: '+(col?'bật':'tắt');labels()};
+const tp=document.getElementById('tp');
+tp.oninput=()=>{tempo=parseInt(tp.value,10);document.getElementById('tv').textContent=tempo+' BPM'};
+document.getElementById('desc').textContent=SEC.verse.d;
+labels();
+</script>
+</body>
+</html>
